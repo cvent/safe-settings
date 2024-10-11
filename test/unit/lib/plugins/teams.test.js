@@ -1,6 +1,7 @@
 const { when } = require('jest-when')
 const any = require('@travi/any')
 const Teams = require('../../../../lib/plugins/teams')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Teams', () => {
   let github
@@ -17,7 +18,7 @@ describe('Teams', () => {
   function configure (config) {
     const log = { debug: jest.fn(), error: console.error }
     const errors = []
-    return new Teams(undefined, github, { owner: 'bkeepers', repo: 'test' }, config, log, errors)
+    return new Teams(undefined, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log, errors)
   }
 
   beforeEach(() => {
