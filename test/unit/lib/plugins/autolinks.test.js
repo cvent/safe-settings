@@ -1,4 +1,5 @@
 const Autolinks = require('../../../../lib/plugins/autolinks')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Autolinks', () => {
   const repo = { owner: 'owner', repo: 'repo' }
@@ -8,7 +9,7 @@ describe('Autolinks', () => {
     const log = { debug: jest.fn(), error: console.error }
     const nop = false
     const errors = []
-    return new Autolinks(nop, github, repo, config, log, errors)
+    return new Autolinks(nop, github, repo, config, new DeploymentConfig(), log, errors)
   }
 
   beforeEach(() => {

@@ -13,13 +13,15 @@ let deploymentConfig
 module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) => {
   let appName = 'safe-settings'
   let appSlug = 'safe-settings'
+  
+  // All repos _could_ be affected, so sync everything
   async function syncAllSettings (nop, context, repo = context.repo(), ref) {
     try {
-      deploymentConfig = await loadYamlFileSystem()
-      robot.log.debug(`deploymentConfig is ${JSON.stringify(deploymentConfig)}`)
+      robot.log.info('Synchronizing all settings')
+
       const configManager = new ConfigManager(context, ref)
-      const runtimeConfig = await configManager.loadGlobalSettingsYaml()
-      const config = Object.assign({}, deploymentConfig, runtimeConfig)
+      const config = await configManager.loadGlobalSettingsYaml()
+
       robot.log.debug(`config for ref ${ref} is ${JSON.stringify(config)}`)
       if (ref) {
         return Settings.syncAll(nop, context, repo, config, ref)
@@ -42,13 +44,14 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     }
   }
 
+  // Only the suborg has been modified, so only sync that
   async function syncSubOrgSettings (nop, context, suborg, repo = context.repo(), ref) {
     try {
-      deploymentConfig = await loadYamlFileSystem()
-      robot.log.debug(`deploymentConfig is ${JSON.stringify(deploymentConfig)}`)
+      robot.log.info(`Synchronizing settings for suborg: ${suborg}`)
+
       const configManager = new ConfigManager(context, ref)
-      const runtimeConfig = await configManager.loadGlobalSettingsYaml()
-      const config = Object.assign({}, deploymentConfig, runtimeConfig)
+      const config = await configManager.loadGlobalSettingsYaml()
+
       robot.log.debug(`config for ref ${ref} is ${JSON.stringify(config)}`)
       return Settings.syncSubOrgs(nop, context, suborg, repo, config, ref)
     } catch (e) {
@@ -67,13 +70,14 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     }
   }
 
+  // Only the repository has been modified, so only sync that
   async function syncSettings (nop, context, repo = context.repo(), ref) {
     try {
-      deploymentConfig = await loadYamlFileSystem()
-      robot.log.debug(`deploymentConfig is ${JSON.stringify(deploymentConfig)}`)
+      robot.log.info(`Synchronizing settings for repo: ${repo}`)
+
       const configManager = new ConfigManager(context, ref)
-      const runtimeConfig = await configManager.loadGlobalSettingsYaml()
-      const config = Object.assign({}, deploymentConfig, runtimeConfig)
+      const config = await configManager.loadGlobalSettingsYaml()
+
       robot.log.debug(`config for ref ${ref} is ${JSON.stringify(config)}`)
       return Settings.sync(nop, context, repo, config, ref)
     } catch (e) {
@@ -258,14 +262,10 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     return null
   }
 
+  // On any push
   robot.on('push', async context => {
     const { payload } = context
     const { repository } = payload
-
-    const adminRepo = repository.name === env.ADMIN_REPO
-    if (!adminRepo) {
-      return
-    }
 
     const defaultBranch = payload.ref === 'refs/heads/' + repository.default_branch
     if (!defaultBranch) {
@@ -273,31 +273,45 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
       return
     }
 
-    const settingsModified = payload.commits.find(commit => {
-      return commit.added.includes(Settings.FILE_NAME) ||
-        commit.modified.includes(Settings.FILE_NAME)
-    })
-    if (settingsModified) {
-      robot.log.debug(`Changes in '${Settings.FILE_NAME}' detected, doing a full synch...`)
-      return syncAllSettings(false, context)
-    }
+    const adminRepo = repository.name === env.ADMIN_REPO
+    if (adminRepo) {
+      const settingsModified = payload.commits.find(commit => {
+        return commit.added.includes(Settings.FILE_NAME) ||
+          commit.modified.includes(Settings.FILE_NAME)
+      })
+      if (settingsModified) {
+        robot.log.debug(`Changes in '${Settings.FILE_NAME}' detected, doing a full sync...`)
+        return syncAllSettings(false, context)
+      }
 
-    const repoChanges = getAllChangedRepoConfigs(payload, context.repo().owner)
-    if (repoChanges.length > 0) {
-      return Promise.all(repoChanges.map(repo => {
-        return syncSettings(false, context, repo)
-      }))
-    }
+      const repoChanges = getAllChangedRepoConfigs(payload, context.repo().owner)
+      if (repoChanges.length > 0) {
+        return Promise.all(repoChanges.map(repo => {
+          return syncSettings(false, context, repo)
+        }))
+      }
 
-    const changes = getAllChangedSubOrgConfigs(payload)
-    if (changes.length) {
-      return Promise.all(changes.map(suborg => {
-        return syncSubOrgSettings(false, context, suborg)
-      }))
-    }
+      const changes = getAllChangedSubOrgConfigs(payload)
+      if (changes.length) {
+        return Promise.all(changes.map(suborg => {
+          return syncSubOrgSettings(false, context, suborg)
+        }))
+      }
 
-    robot.log.debug(`No changes in '${Settings.FILE_NAME}' detected, returning...`)
+      robot.log.debug(`No changes in '${Settings.FILE_NAME}' detected, returning...`)
+    } else {
+      const settingsModified = payload.commits.find(commit => {
+        return commit.added.includes('.github/settings.yml') ||
+          commit.modified.includes('.github/settings.yml')
+      })
+      if (settingsModified) {
+        robot.log.debug(`Changes in '.github/settings.yml' detected, doing a sync for ${repository.name}...`)
+        return syncSettings(false, context)
+      }
+    }
   })
+
+  // Invoke syncSettings for events that could cause drift
 
   robot.on('create', async context => {
     const { payload } = context
@@ -394,6 +408,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     return syncSettings(false, context)
   })
 
+  // Renames need some extra handling
   robot.on('repository.renamed', async context => {
     if (env.BLOCK_REPO_RENAME_BY_HUMAN!== 'true') {
       robot.log.debug(`"env.BLOCK_REPO_RENAME_BY_HUMAN" is 'false' by default. Repo rename is not managed by Safe-settings. Continue with the default behavior.`)
@@ -474,7 +489,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     }
   })
 
-
+  // Validate settings when PR checks are needed
   robot.on('check_suite.requested', async context => {
     const { payload } = context
     const { repository } = payload
@@ -503,6 +518,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     return createCheckRun(context, pull_request, headSha, headBranch)
   })
 
+  // Validate settings when PR checks are needed
   robot.on('pull_request.opened', async context => {
     robot.log.debug('Pull_request opened !')
     const { payload } = context
@@ -522,6 +538,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     return createCheckRun(context, pull_request, payload.pull_request.head.sha, payload.pull_request.head.ref)
   })
 
+  // Validate settings when PR checks are needed
   robot.on('pull_request.reopened', async context => {
     robot.log.debug('Pull_request REopened !')
     const { payload } = context
@@ -543,16 +560,13 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     return createCheckRun(context, pull_request, payload.pull_request.head.sha, payload.pull_request.head.ref)
   })
 
+  // Validate settings when PR checks are needed
   robot.on(['check_suite.rerequested'], async context => {
     robot.log.debug('Check suite was rerequested!')
     return createCheckRun(context)
   })
 
-  robot.on(['check_suite.rerequested'], async context => {
-    robot.log.debug('Check suite was rerequested!')
-    return createCheckRun(context)
-  })
-
+  // Validate settings when PR checks are needed
   robot.on(['check_run.created'], async context => {
     robot.log.debug('Check run was created!')
     const { payload } = context
