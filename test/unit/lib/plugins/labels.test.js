@@ -1,4 +1,5 @@
 const Labels = require('../../../../lib/plugins/labels')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Labels', () => {
   let github
@@ -6,7 +7,7 @@ describe('Labels', () => {
 
   function configure(config) {
     const nop = false;
-    return new Labels(nop, github, { owner: 'bkeepers', repo: 'test' }, config, log)
+    return new Labels(nop, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log)
   }
 
   beforeEach(() => {

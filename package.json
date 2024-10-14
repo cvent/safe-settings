@@ -27,7 +27,9 @@
     "deepmerge": "^4.3.1",
     "eta": "^3.0.3",
     "js-yaml": "^4.1.0",
+    "json-pointer": "^0.6.2",
     "lodash": "^4.17.21",
+    "lodash.set": "^4.3.2",
     "node-cron": "^3.0.2",
     "octokit": "^3.1.2",
     "probot": "^12.3.3"

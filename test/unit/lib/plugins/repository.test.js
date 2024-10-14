@@ -1,4 +1,5 @@
 const Repository = require('../../../../lib/plugins/repository')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Repository', () => {
   const github = {
@@ -19,7 +20,7 @@ describe('Repository', () => {
   function configure (config) {
     const noop = false
     const errors = []
-    return new Repository(noop, github, { owner: 'bkeepers', repo: 'test' }, config, 1, log, errors)
+    return new Repository(noop, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log, errors)
   }
 
   describe('sync', () => {
