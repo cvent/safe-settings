@@ -1,6 +1,9 @@
 /* eslint-disable no-undef */
 
 const Settings = require('../../../lib/settings')
+const DeploymentConfig = require('../../../lib/deploymentConfig')
+
+jest.mock('../../../lib/deploymentConfig')
 
 describe('Settings Tests', () => {
   let stubContext
@@ -42,10 +45,10 @@ describe('Settings Tests', () => {
   describe('restrictedRepos', () => {
     describe('restrictedRepos not defined', () => {
       beforeEach(() => {
-        stubConfig = {
-          restrictedRepos: {
-          }
-        }
+        DeploymentConfig.mockImplementation(() => ({
+          restrictedRepos: {}
+        }))
+        stubConfig = {}
       })
 
       it('Allow repositories being configured', () => {
@@ -64,11 +67,12 @@ describe('Settings Tests', () => {
 
     describe('restrictedRepos.exclude defined', () => {
       beforeEach(() => {
-        stubConfig = {
+        DeploymentConfig.mockImplementation(() => ({
           restrictedRepos: {
             exclude: ['foo', '.*-test$', '^personal-.*$']
           }
-        }
+        }))
+        stubConfig = {}
       })
 
       it('Skipping excluded repository from being configured', () => {
@@ -91,11 +95,12 @@ describe('Settings Tests', () => {
 
     describe('restrictedRepos.include defined', () => {
       beforeEach(() => {
-        stubConfig = {
+        DeploymentConfig.mockImplementation(() => ({
           restrictedRepos: {
             include: ['foo', '.*-test$', '^personal-.*$']
           }
-        }
+        }))
+        stubConfig = {}
       })
 
       it('Allowing repository from being configured', () => {
@@ -116,25 +121,12 @@ describe('Settings Tests', () => {
       })
     })
 
-    describe('restrictedRepos not defined', () => {
-      it('Throws TypeError if restrictedRepos not defined', () => {
-        stubConfig = {}
-        settings = createSettings(stubConfig)
-        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of undefined (reading \'include\')')
-      })
-
-      it('Throws TypeError if restrictedRepos is null', () => {
-        stubConfig = {
-          restrictedRepos: null
-        }
-        settings = createSettings(stubConfig)
-        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of null (reading \'include\')')
-      })
-
+    describe('restrictedRepos empty', () => {
       it('Allowing all repositories if restrictedRepos is empty', () => {
-        stubConfig = {
+        DeploymentConfig.mockImplementation(() => ({
           restrictedRepos: []
-        }
+        }))
+        stubConfig = {}
         settings = createSettings(stubConfig)
         expect(settings.isRestricted('my-repo')).toEqual(false)
       })
