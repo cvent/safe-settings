@@ -1,11 +1,12 @@
 const Collaborators = require('../../../../lib/plugins/collaborators')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Collaborators', () => {
   let github
 
   function configure (config) {
     const log = { debug: jest.fn(), error: console.error }
-    return new Collaborators(undefined, github, { owner: 'bkeepers', repo: 'test' }, config, log)
+    return new Collaborators(undefined, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log)
   }
 
   beforeEach(() => {
