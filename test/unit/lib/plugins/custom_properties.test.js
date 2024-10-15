@@ -1,4 +1,5 @@
 const CustomProperties = require('../../../../lib/plugins/custom_properties')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('CustomProperties', () => {
     let github
@@ -8,7 +9,7 @@ describe('CustomProperties', () => {
     function configure (config) {
         const nop = false;
         const errors = []
-        return new CustomProperties(nop, github, { owner: 'bkeepers', repo: 'test' }, config, log, errors)
+        return new CustomProperties(nop, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log, errors)
     }
 
     beforeEach(() => {

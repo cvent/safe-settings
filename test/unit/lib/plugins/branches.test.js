@@ -2,6 +2,7 @@
 
 const { when } = require('jest-when')
 const Branches = require('../../../../lib/plugins/branches')
+const DeploymentConfig = require('../../../../lib/deploymentConfig')
 
 describe('Branches', () => {
   let github
@@ -12,7 +13,7 @@ describe('Branches', () => {
   function configure (config) {
     const noop = false
     const errors = []
-    return new Branches(noop, github, { owner: 'bkeepers', repo: 'test' }, config, log, errors)
+    return new Branches(noop, github, { owner: 'bkeepers', repo: 'test' }, config, new DeploymentConfig(), log, errors)
   }
 
   beforeEach(() => {
