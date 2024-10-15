@@ -9,11 +9,10 @@ const env = require('./lib/env')
 
 let deploymentConfig
 
-
 module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) => {
   let appName = 'safe-settings'
   let appSlug = 'safe-settings'
-  
+
   // All repos _could_ be affected, so sync everything
   async function syncAllSettings (nop, context, repo = context.repo(), ref) {
     try {
