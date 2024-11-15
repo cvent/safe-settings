@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+const DeploymentConfig = require('../../../lib/deploymentConfig')
 const MergeDeep = require('../../../lib/mergeDeep')
 const YAML = require('js-yaml')
 const log = require('pino')('test.log')
@@ -188,7 +189,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`source ${JSON.stringify(source, null, 2)}`)
@@ -250,7 +252,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(undefined, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -299,7 +302,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep({}, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -421,7 +425,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`source ${JSON.stringify(source, null, 2)}`)
@@ -452,7 +457,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     // console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -505,7 +511,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     // console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -538,7 +545,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -571,7 +579,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -647,7 +656,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     // console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -688,7 +698,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     // console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -768,7 +779,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     // console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -818,7 +830,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -866,7 +879,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -881,7 +895,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = {
       teams: [
@@ -910,7 +925,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = {
       teams: [
@@ -938,7 +954,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = {
       required_pull_request_reviews: {
@@ -972,7 +989,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = {
       required_pull_request_reviews: {
@@ -1006,7 +1024,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = [
       { username: 'collaborator-1' },
@@ -1029,7 +1048,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const target = []
     const source = []
@@ -1075,7 +1095,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`diffs ${JSON.stringify(merged, null, 2)}`)
@@ -1305,7 +1326,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     expect(merged.hasChanges).toBeFalsy()
@@ -1358,7 +1380,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`source ${JSON.stringify(source, null, 2)}`)
@@ -1448,7 +1471,8 @@ entries:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`source ${JSON.stringify(source, null, 2)}`)
@@ -1604,7 +1628,8 @@ branches:
     const mergeDeep = new MergeDeep(
       log,
       mockReturnGitHubContext,
-      ignorableFields
+      ignorableFields,
+      new DeploymentConfig()
     )
     const merged = mergeDeep.compareDeep(target, source)
     console.log(`source ${JSON.stringify(source, null, 2)}`)
