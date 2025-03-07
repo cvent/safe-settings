@@ -1,0 +1,6 @@
+name: 'Safe Settings'
+description: 'Manage policy-as-code and apply repository settings across an organization'
+
+runs:
+  using: 'node20'
+  main: 'full-sync.js'
