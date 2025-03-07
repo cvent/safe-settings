@@ -18,7 +18,7 @@ describe('Settings Tests', () => {
 
   function createSettings(config) {
     const settings = new Settings(false, stubContext, mockRepo, config, mockRef, mockSubOrg)
-    return settings;
+    return settings
   }
 
   beforeEach(() => {
@@ -51,7 +51,7 @@ repository:
   # A comma-separated list of topics to set on the repository
   topics:   
   - frontend
-     `).toString('base64');
+     `).toString('base64')
     mockOctokit.repos = {
       getContent: jest.fn().mockResolvedValue({ data: { content } })
     }
@@ -82,18 +82,17 @@ repository:
       }
     }
 
-
-
     mockRepo = { owner: 'test', repo: 'test-repo' }
     mockRef = 'main'
     mockSubOrg = 'frontend'
   })
 
   describe('restrictedRepos', () => {
-    describe('restrictedRepos not defined', () => {
+    describe('restrictedRepos is empty object', () => {
       beforeEach(() => {
         stubConfig = {
-          restrictedRepos: {
+          deploymentConfig: {
+            restrictedRepos: {}
           }
         }
       })
@@ -112,11 +111,74 @@ repository:
       })
     })
 
+    describe('restrictedRepos is not present', () => {
+      beforeEach(() => {
+        stubConfig = {
+          deploymentConfig: {}
+        }
+      })
+
+      it('throws TypeError', () => {
+        settings = createSettings(stubConfig)
+        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of undefined (reading \'include\')')
+      })
+    })
+
+    describe('restrictedRepos is null', () => {
+      beforeEach(() => {
+        stubConfig = {
+          deploymentConfig: {
+            restrictedRepos: null
+          }
+        }
+      })
+
+      it('throws TypeError', () => {
+        settings = createSettings(stubConfig)
+        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of null (reading \'include\')')
+      })
+    })
+
+    describe('restrictedRepos is empty array', () => {
+      beforeEach(() => {
+        stubConfig = {
+          deploymentConfig: {
+            restrictedRepos: []
+          }
+        }
+      })
+
+      it('allows all repositories', () => {
+        settings = createSettings(stubConfig)
+        expect(settings.isRestricted('my-repo')).toEqual(false)
+      })
+    })
+
+    describe('restrictedRepos also defined in runtimeConfig', () => {
+      beforeEach(() => {
+        stubConfig = {
+          deploymentConfig: {
+            restrictedRepos: ['admin', '.github', 'safe-settings']
+          },
+          runtimeConfig: {
+            restrictedRepos: ['foo', 'bar']
+          }
+        }
+      })
+
+      it('ignores restrictedRepos from runtimeConfig', () => {
+        settings = createSettings(stubConfig)
+        expect(settings.restrictedRepos).toMatchObject(['admin', '.github', 'safe-settings'])
+      })
+    })
+
     describe('restrictedRepos.exclude defined', () => {
       beforeEach(() => {
         stubConfig = {
-          restrictedRepos: {
-            exclude: ['foo', '.*-test$', '^personal-.*$']
+          deploymentConfig: {
+            restrictedRepos: {
+              exclude: ['foo', '.*-test$', '^personal-.*$']
+            }
           }
         }
       })
@@ -142,8 +204,10 @@ repository:
     describe('restrictedRepos.include defined', () => {
       beforeEach(() => {
         stubConfig = {
-          restrictedRepos: {
-            include: ['foo', '.*-test$', '^personal-.*$']
+          deploymentConfig: {
+            restrictedRepos: {
+              include: ['foo', '.*-test$', '^personal-.*$']
+            }
           }
         }
       })
@@ -165,37 +229,14 @@ repository:
         expect(settings.isRestricted('personalization-repo')).toEqual(true)
       })
     })
-
-    describe('restrictedRepos not defined', () => {
-      it('Throws TypeError if restrictedRepos not defined', () => {
-        stubConfig = {}
-        settings = createSettings(stubConfig)
-        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of undefined (reading \'include\')')
-      })
-
-      it('Throws TypeError if restrictedRepos is null', () => {
-        stubConfig = {
-          restrictedRepos: null
-        }
-        settings = createSettings(stubConfig)
-        expect(() => settings.isRestricted('my-repo')).toThrow('Cannot read properties of null (reading \'include\')')
-      })
-
-      it('Allowing all repositories if restrictedRepos is empty', () => {
-        stubConfig = {
-          restrictedRepos: []
-        }
-        settings = createSettings(stubConfig)
-        expect(settings.isRestricted('my-repo')).toEqual(false)
-      })
-    })
   }) // restrictedRepos
 
   describe('loadConfigs', () => {
     describe('load suborg configs', () => {
       beforeEach(() => {
         stubConfig = {
-          restrictedRepos: {
+          deploymentConfig: {
+            restrictedRepos: {}
           }
         }
         subOrgConfig = yaml.load(`
